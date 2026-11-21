@@ -1,0 +1,16 @@
+# personal / local only
+config.local.json
+PERSONAL.md
+assets/music_features.json
+library/*
+!library/README.md
+# third-party reference frames are never redistributed (keep only our own previews)
+references/frame-sheets/*
+!references/frame-sheets/worlds_preview_*.jpg
+!references/frame-sheets/OUR_*.jpg
+# build output
+__pycache__/
+*.pyc
+.hyperframes/
+renders/
+.DS_Store

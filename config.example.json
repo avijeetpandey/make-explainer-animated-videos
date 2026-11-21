@@ -1,0 +1,9 @@
+{
+ "handle": "@yourhandle",
+ "music_dir": "~/Music/explainer-library/music",
+ "sfx_dir": "~/Music/explainer-library/sfx",
+ "projects_dir": "~/Documents/explainer-videos",
+ "drive_dest": "gdrive:explainer_videos",
+ "kit_lint": "",
+ "pipeline_root": ""
+}

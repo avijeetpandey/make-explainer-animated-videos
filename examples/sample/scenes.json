@@ -1,0 +1,334 @@
+{
+ "meta": {
+  "series": "SYSTEM DESIGN \u00b7 01",
+  "accent": "white",
+  "seed": 7
+ },
+ "scenes": [
+  {
+   "text": "If an interviewer asks: what is a *load balancer*, and why does every big app need one?",
+   "kicker": "01 \u00b7 THE QUESTION",
+   "hero": {
+    "shape": "sphere",
+    "r": 250,
+    "spin": 0.35,
+    "y": -40
+   },
+   "stage": [
+    {
+     "type": "chip",
+     "tone": "white",
+     "text": "INTERVIEW QUESTION",
+     "x": 540,
+     "y": 1270
+    }
+   ]
+  },
+  {
+   "text": "Imagine one server handling *millions* of users at once.",
+   "kicker": "02 \u00b7 THE PROBLEM",
+   "hero": {
+    "shape": "cloud",
+    "r": 330,
+    "spin": 0.15,
+    "y": -80,
+    "alpha": 0.55
+   },
+   "stage": [
+    {
+     "id": "srv",
+     "type": "obj",
+     "kind": "rack",
+     "units": 3,
+     "label": "ONE SERVER",
+     "sub": "all the traffic",
+     "x": 540,
+     "y": 900,
+     "w3": 190,
+     "h3": 190,
+     "d3": 120
+    },
+    {
+     "type": "counter",
+     "label": "requests per second",
+     "from": 1200,
+     "to": 4786520,
+     "fmt": "indian",
+     "dur": 2.4,
+     "x": 540,
+     "y": 1290,
+     "at": 0.4
+    }
+   ]
+  },
+  {
+   "text": "It slows down, and then it *crashes*.",
+   "kicker": "03 \u00b7 THE CRASH",
+   "hero": null,
+   "stage": [
+    {
+     "id": "srv",
+     "tone": "red",
+     "active": 1,
+     "x": 540,
+     "y": 900
+    },
+    {
+     "type": "stamp",
+     "tone": "red",
+     "text": "SERVER DOWN",
+     "x": 540,
+     "y": 1240,
+     "at": "crashes"
+    }
+   ]
+  },
+  {
+   "text": "A load balancer sits *in front* of your servers.",
+   "kicker": "04 \u00b7 THE FIX",
+   "hero": null,
+   "stage": [
+    {
+     "id": "user",
+     "type": "obj",
+     "kind": "browser",
+     "label": "USERS",
+     "sub": "requests",
+     "x": 540,
+     "y": 590,
+     "w3": 190,
+     "h3": 120
+    },
+    {
+     "id": "lb",
+     "type": "obj",
+     "kind": "box",
+     "label": "LOAD BALANCER",
+     "sub": "decides who serves",
+     "x": 540,
+     "y": 890,
+     "w3": 150,
+     "h3": 90,
+     "d3": 110,
+     "tone": "blue",
+     "active": 1,
+     "at": 0.5
+    },
+    {
+     "id": "s1",
+     "type": "obj",
+     "kind": "rack",
+     "units": 2,
+     "label": "SERVER 1",
+     "x": 220,
+     "y": 1230,
+     "w3": 130,
+     "h3": 120,
+     "d3": 90,
+     "at": 0.9
+    },
+    {
+     "id": "s2",
+     "type": "obj",
+     "kind": "rack",
+     "units": 2,
+     "label": "SERVER 2",
+     "x": 540,
+     "y": 1230,
+     "w3": 130,
+     "h3": 120,
+     "d3": 90,
+     "at": 1.05
+    },
+    {
+     "id": "s3",
+     "type": "obj",
+     "kind": "rack",
+     "units": 2,
+     "label": "SERVER 3",
+     "x": 860,
+     "y": 1230,
+     "w3": 130,
+     "h3": 120,
+     "d3": 90,
+     "at": 1.2
+    },
+    {
+     "type": "link",
+     "id": "l0",
+     "a": "user",
+     "b": "lb",
+     "arrow": true,
+     "gap": 90,
+     "at": 0.6
+    },
+    {
+     "type": "link",
+     "id": "l1",
+     "a": "lb",
+     "b": "s1",
+     "arrow": true,
+     "gap": 80,
+     "at": 1.0
+    },
+    {
+     "type": "link",
+     "id": "l2",
+     "a": "lb",
+     "b": "s2",
+     "arrow": true,
+     "gap": 80,
+     "at": 1.15
+    },
+    {
+     "type": "link",
+     "id": "l3",
+     "a": "lb",
+     "b": "s3",
+     "arrow": true,
+     "gap": 80,
+     "at": 1.3
+    }
+   ]
+  },
+  {
+   "text": "Every request goes to the server with the *least* load.",
+   "kicker": "05 \u00b7 THE RULE",
+   "hero": null,
+   "keep": [
+    "user",
+    "lb",
+    "s1",
+    "s2",
+    "s3",
+    "l0",
+    "l1",
+    "l2",
+    "l3"
+   ],
+   "stage": [
+    {
+     "id": "lb",
+     "active": 1
+    },
+    {
+     "id": "s2",
+     "tone": "green",
+     "active": 1
+    },
+    {
+     "type": "packet",
+     "id": "p1",
+     "a": "user",
+     "b": "lb",
+     "label": "GET /feed",
+     "dur": 0.8,
+     "at": 0.3
+    },
+    {
+     "type": "packet",
+     "id": "p2",
+     "a": "lb",
+     "b": "s2",
+     "label": "\u2192 server 2 \u00b7 12% load",
+     "tone": "green",
+     "dur": 0.9,
+     "at": "least"
+    }
+   ]
+  },
+  {
+   "text": "If one server fails, traffic is *rerouted* to the healthy ones.",
+   "kicker": "06 \u00b7 FAILOVER",
+   "hero": null,
+   "keep": [
+    "user",
+    "lb",
+    "s1",
+    "s3",
+    "l0",
+    "l1",
+    "l3"
+   ],
+   "stage": [
+    {
+     "id": "s2",
+     "tone": "red",
+     "active": 1
+    },
+    {
+     "id": "l2",
+     "alpha": 0.15
+    },
+    {
+     "type": "chip",
+     "id": "down",
+     "tone": "red",
+     "text": "SERVER 2 \u00b7 DOWN",
+     "x": 540,
+     "y": 1420,
+     "at": "fails,"
+    },
+    {
+     "type": "packet",
+     "id": "p3",
+     "a": "lb",
+     "b": "s3",
+     "label": "rerouted \u2192 server 3",
+     "tone": "green",
+     "dur": 0.9,
+     "at": "rerouted"
+    }
+   ]
+  },
+  {
+   "text": "So the app stays *fast* and *available*.",
+   "kicker": "07 \u00b7 THE RESULT",
+   "hero": {
+    "shape": "text",
+    "value": "UP",
+    "r": 200,
+    "size": 300,
+    "spin": 0.25,
+    "tone": "green",
+    "y": -250
+   },
+   "stage": [
+    {
+     "type": "list",
+     "id": "rc",
+     "items": [
+      "Spreads the traffic",
+      "Skips dead servers",
+      "Scales with demand"
+     ],
+     "x": 540,
+     "y": 1150,
+     "w": 720,
+     "active": 1,
+     "at": 0.6
+    }
+   ]
+  },
+  {
+   "text": "Want the most asked interview questions on this? *Comment* on this reel.",
+   "kicker": "",
+   "hero": {
+    "shape": "sphere",
+    "r": 230,
+    "spin": 0.3,
+    "alpha": 0.5,
+    "y": -300
+   },
+   "stage": [
+    {
+     "type": "cta",
+     "text": "Comment on\nthis reel",
+     "sub": "Interview notes in your DMs.",
+     "x": 540,
+     "y": 1050
+    }
+   ]
+  }
+ ]
+}
