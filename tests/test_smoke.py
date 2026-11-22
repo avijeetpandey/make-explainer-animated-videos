@@ -11,7 +11,8 @@ class T(unittest.TestCase):
     def test_everything_compiles(self):
         for f in os.listdir(S):
             if f.endswith(".py"): compile(open(os.path.join(S, f), encoding="utf-8").read(), f, "exec")
-        r = subprocess.run(["node", "--check", os.path.join(S, "engine.js")], capture_output=True); self.assertEqual(r.returncode, 0, r.stderr)
+        for js in ("engine.js", "studio.js"):
+            r = subprocess.run(["node", "--check", os.path.join(S, js)], capture_output=True); self.assertEqual(r.returncode, 0, r.stderr)
 
     def test_tokens_markers_and_punctuation(self):
         b = load("build_explainer")
@@ -42,6 +43,21 @@ class T(unittest.TestCase):
         for n, d in w.items():
             for k in ("bg", "glow", "tones", "caption", "overlay", "trans"): self.assertIn(k, d, n)
             self.assertEqual(set(d["tones"]), {"white", "red", "blue", "yellow", "green", "violet"})
+
+    def test_studio_worlds_are_complete(self):
+        w = json.load(open(os.path.join(K, "assets", "worlds.json"))); studio = {n: d for n, d in w.items() if d.get("tier") in ("studio", "expressive")}
+        self.assertGreaterEqual(len(studio), 4)
+        for n, d in studio.items():
+            self.assertIn(d["backdrop"]["kind"], ("aurora", "fluted", "duotone", "studio", "cream", "deep", "ink"), n)
+            self.assertTrue({"problem", "solution", "mechanism", "outro"} <= set(d["zones"]), n)
+        self.assertTrue(os.path.exists(os.path.join(K, "assets", "vendor", "three.module.min.js")))
+
+    def test_default_worlds_are_calm_ink(self):
+        w = json.load(open(os.path.join(K, "assets", "worlds.json"))); ink = {n: d for n, d in w.items() if d.get("tier") == "studio"}
+        self.assertEqual(set(ink), {"ink_blue", "ink_violet", "ink_teal", "ink_amber"})
+        for n, d in ink.items():
+            self.assertEqual(d["backdrop"]["kind"], "ink", n); self.assertEqual(d.get("flash_gain"), 0, n); self.assertFalse(d.get("shocks", True), n)
+        compile(open(os.path.join(S, "layout_check.py"), encoding="utf-8").read(), "layout_check.py", "exec")
 
     @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg needed")
     def test_clean_voice_caps_long_pauses(self):

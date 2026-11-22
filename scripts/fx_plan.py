@@ -81,11 +81,11 @@ def plan_cues(scenes, els, fx, total, reel):
         if sk.get("scene"): c.append({"role": "impact", "t": sk["t"] - .04, "vol": .22, "prio": 8, "max_dur": 1.0})
     for e in els:
         ty, at, tone = e["type"], round(e["ats"][0], 2), (e.get("tone") or ((e["frames"][0].get("tone")) or ""))
-        if ty == "obj": c.append({"role": "pop", "t": at - .03, "vol": .24, "prio": 5, "max_dur": .6})
+        if ty in ("obj", "gl"): c.append({"role": "pop", "t": at - .03, "vol": .24, "prio": 5, "max_dur": .6})
         elif ty in ("chip", "packet"):
             role = "negation" if tone == "red" else "success" if tone == "green" and ty == "chip" else "click"
             c.append({"role": role, "t": at - .02, "vol": .2, "prio": 5, "max_dur": .7})
-        elif ty in ("card", "list", "compare", "search", "bars", "cells"): c.append({"role": "click", "t": at - .02, "vol": .2, "prio": 4, "max_dur": .6})
+        elif ty in ("card", "list", "compare", "search", "bars", "cells", "rows", "pill"): c.append({"role": "click", "t": at - .02, "vol": .2, "prio": 4, "max_dur": .6})
         elif ty == "big": c.append({"role": "pop", "t": at - .03, "vol": .26, "prio": 5, "max_dur": .6})
         elif ty == "counter":
             n = int(min(3, (e.get("dur") or 1.6) / .5)); c += [{"role": "tick", "t": at + .45 * j, "vol": .14, "prio": 2, "max_dur": .3} for j in range(n)]

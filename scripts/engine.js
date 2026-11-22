@@ -14,7 +14,7 @@
   if (W0) {
     const hx = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), R = document.documentElement.style, root = document.getElementById("root");
     Object.keys(W0.tones).forEach(k => { TONE[k] = hx(W0.tones[k]); R.setProperty("--" + k, W0.tones[k]); }); R.setProperty("--bg", W0.bg); R.setProperty("--ink", W0.tones.white); R.setProperty("--glowc", W0.glow);
-    root.classList.add("w-" + M.world, "cap-" + W0.caption, "ov-" + W0.overlay); document.body.style.background = W0.bg;
+    root.classList.add("w-" + M.world, "cap-" + W0.caption, "ov-" + W0.overlay, "st-" + (W0.style || "flat")); if (W0.glow_off) R.setProperty("--glowoff", "none"); document.body.style.background = W0.bg; { const g = document.getElementById("grain"); if (g && W0.grain != null) g.style.opacity = W0.grain; }
   }
   const rgba = (tone, a) => { const c = TONE[tone] || TONE.white; return `rgba(${c[0]},${c[1]},${c[2]},${a})`; };
   const indian = n => { n = Math.round(n); let s = String(Math.abs(n)); if (s.length > 3) { const l = s.slice(-3); let r = s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ","); s = r + "," + l; } return (n < 0 ? "-" : "") + s; };
@@ -33,7 +33,7 @@
   function camAt(t) {
     const i = sceneAt(t), sc = S[i], su = cl((t - sc.from) / Math.max(.1, sc.to - sc.from)), dir = i % 2 ? 1 : -1;
     let s = 1 + DRIFT * eio3(su), x = dir * 34 * (su - .5), y = -14 * (su - .5), blur = 0, hx = 0, hy = 0;
-    if (t < .6) s *= 1 + .16 * (1 - eo3(t / .55));
+    if (t < .6) s *= 1 + (W0 && W0.snap != null ? W0.snap : .16) * (1 - eo3(t / .55));
     FX.punches.forEach(p => { const dt = t - p.t; if (dt > -.02 && dt < .7) { const k = dt < .09 ? eo3(Math.max(0, dt) / .09) : 1 - eio3((dt - .09) / .55); s *= 1 + p.amt * k; if (p.shake && dt < .35) { const a = 1 - dt / .35; x += Math.sin(t * 83) * 9 * a; y += Math.cos(t * 71) * 7 * a; } } });
     FX.trans.forEach(tr => {
       const dt = t - tr.t, d = tr.dir || 1;
@@ -47,7 +47,7 @@
     return { s, x, y, blur, hx, hy, pu };
   }
   const sceneAt = t => { let k = 0; for (let i = 0; i < S.length; i++) if (t >= S[i].from) k = i; return k; };
-  document.documentElement.style.setProperty("--accent", rgba(M.accent || "white", 1));
+  document.documentElement.style.setProperty("--accent", rgba(M.accent || "white", 1)); document.documentElement.style.setProperty("--ac", rgba((W0 && W0.accent) || M.accent || "blue", 1));
   const hud = $("#hud"); $("#brand").textContent = M.handle; $("#series").textContent = M.series;
   const rail = $("#rail"), fill = $("#fill"), ticks = S.map(s => { const k = mk("i", "tick"); k.style.left = (972 * s.from / T) + "px"; rail.appendChild(k); return k; });
   const kick = $("#kicker"), cap = $("#cap");
@@ -101,28 +101,34 @@
     const fr = e.frames; let k = 0; for (let i = 0; i < fr.length; i++) if (t >= fr[i].t) k = i; const c = fr[k], p = fr[Math.max(0, k - 1)], u = eio3((t - c.t) / .7), o = {};
     for (const key in c) o[key] = (typeof c[key] === "number" && typeof p[key] === "number" && key !== "t") ? lerp(p[key], c[key], u) : c[key]; return o;
   }
-  function win(e, t) { for (let i = 0; i < e.wins.length; i++) { const [a, b] = e.wins[i], at = e.ats[i]; if (t >= at - .001 && t <= b + .35) { const inn = eo3((t - at) / .42), od = WHIPS.some(w => Math.abs(w - b) < .02) ? .06 : .3, out = 1 - cl((t - b) / od); return { a: inn * out, p: cl((t - at) / .75), t0: at, live: t <= b }; } } return null; }
+  function win(e, t) { for (let i = 0; i < e.wins.length; i++) { const [a, b] = e.wins[i], at = e.ats[i]; if (t >= at - .001 && t <= b + .35) { const inn = eo3((t - at) / .42), od = WHIPS.some(w => Math.abs(w - b) < .02) ? .06 : (W0 && W0.exit || .3), out = 1 - cl((t - b) / od); return { a: inn * out, p: cl((t - at) / .75), t0: at, live: t <= b }; } } return null; }
+  const stateSince = (e, t, fn) => { const fr = e.frames; let k = 0; for (let i = 0; i < fr.length; i++) if (t >= fr[i].t) k = i; const v = fn(fr[k]); let j = k; while (j > 0 && fn(fr[j - 1]) === v) j--; return [v, j === 0 ? -9 : fr[j].t]; };
   const stage = $("#stage");
   EL.forEach(e => { // build DOM for every non-canvas element
-    if (e.type === "link" || e.type === "cells" || (e.type === "packet" && !e.label) || (e.type === "obj" && !e.label && !e.sub)) return;
+    if (e.type === "link" || e.type === "cells" || (e.type === "packet" && !e.label) || ((e.type === "obj" || e.type === "gl") && !e.label && !e.sub)) return;
     const f = e.frames[0]; let n;
-    if (e.type === "obj") { n = mk("div", "lbl", `<div class="t">${mark(e.label || "")}</div>${e.sub ? `<div class="s" data-layout-ignore>${mark(e.sub)}</div>` : ""}`); }
+    if (e.type === "obj" || e.type === "gl") { n = mk("div", "lbl", `<div class="t">${mark(e.label || "")}</div>${e.sub ? `<div class="s" data-layout-ignore>${mark(e.sub)}</div>` : ""}`); }
     else if (e.type === "chip" || e.type === "packet") { n = mk("div", "", `<span class="chip ${e.tone || ""}">${mark(e.text || e.label || "")}</span>`); }
-    else if (e.type === "card") { n = mk("div", "card " + (e.tone || ""), (e.title ? `<div class="h" data-layout-ignore>${mark(e.title)}</div>` : "") + `<div class="ln"></div>`); n.style.width = (f.w || 820) + "px"; }
-    else if (e.type === "big") { n = mk("div", "big", mark(e.text).replace(/<b>/g, "<i>").replace(/<\/b>/g, "</i>") + (e.sub ? `<span class="sub">${mark(e.sub)}</span>` : "")); }
-    else if (e.type === "counter") { n = mk("div", "counter " + (e.tone || ""), `<div class="l" data-layout-ignore>${mark(e.label || "")}</div><div class="n"></div>`); }
+    else if (e.type === "card") { n = mk("div", "card " + (e.tone || "") + (e.chrome ? " chrome" : ""), (e.chrome ? `<div class="bar"><i></i><i></i><i></i><span data-layout-ignore>${mark(e.title || "")}</span></div>` : e.title ? `<div class="h" data-layout-ignore>${mark(e.title)}</div>` : "") + `<div class="ln"></div>`); n.style.width = (f.w || 820) + "px"; }
+    else if (e.type === "big") { n = mk("div", "big " + (e.style || "") + " " + (e.tone || ""), mark(e.text).replace(/<b>/g, "<i>").replace(/<\/b>/g, "</i>").split("\n").map(l => `<span class="bl">${l}</span>`).join("") + (e.sub ? `<span class="sub">${mark(e.sub)}</span>` : "")); if (e.size) n.style.fontSize = e.size + "px"; }
+    else if (e.type === "pill") { n = mk("div", "", `<span class="pillx ${e.tone || ""}">${mark(e.text)}</span>`); }
+    else if (e.type === "rows") { n = mk("div", "rows " + (e.tone || ""), e.rows.map((r, j) => `<div class="rw"><span class="ic ${r.tone || ""}"></span><span class="t">${mark(r.t)}</span><span class="st"></span></div>`).join("")); n.style.width = (f.w || 780) + "px"; }
+    else if (e.type === "counter") { n = mk("div", "counter " + (e.tone || ""), `<div class="l" data-layout-ignore>${mark(e.label || "")}</div><div class="n"></div>`); n.querySelector(".n").textContent = (e.prefix || "") + fmtNum(Math.max(Math.abs(e.from || 0), Math.abs(e.to || 0)), e.fmt) + (e.suffix || ""); }
     else if (e.type === "list") { n = mk("div", "list", `<div class="rail"></div>` + e.items.map((t2, i) => `<div class="it"><span class="nu" data-layout-ignore>${String(i + 1).padStart(2, "0")}</span><span class="pill">${mark(t2)}</span></div>`).join("")); n.style.width = (f.w || 760) + "px"; }
-    else if (e.type === "compare") { n = mk("div", "", ""); n.style.cssText = `display:flex;gap:24px;width:${f.w || 900}px`; e.cards.forEach(c => { const k = mk("div", "card " + (c.tone || ""), `<div class="h" data-layout-ignore>${mark(c.title || "")}</div><div class="ln">${(c.lines || []).map(mark).join("\n")}</div>`); k.style.flex = "1"; n.appendChild(k); }); }
+    else if (e.type === "compare") { n = mk("div", "cmpw", ""); n.style.cssText = `display:flex;gap:24px;width:${f.w || 900}px`; e.cards.forEach(c => { const k = mk("div", "card " + (c.tone || ""), `<div class="h" data-layout-ignore>${mark(c.title || "")}</div><div class="ln">${(c.lines || []).map(mark).join("\n")}</div>`); k.style.flex = "1"; n.appendChild(k); }); }
     else if (e.type === "cta") { n = mk("div", "", `<div class="bubble">${mark(e.text || "Comment in\nthis reel").replace(/\n/g, "<br>")}</div><div class="cta-sub" data-layout-ignore>${mark(e.sub || "")}</div>`); n.style.width = "560px"; }
     else if (e.type === "note") { n = mk("div", "note", mark(e.text)); n.setAttribute("data-layout-ignore", ""); }
     else if (e.type === "stamp") { n = mk("div", "", `<span class="stamp ${e.tone === "red" || !e.tone ? "" : e.tone}">${mark(e.text)}</span>`); }
     else if (e.type === "search") { n = mk("div", "search", `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9a9aa0" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span class="tt"></span><span class="en">ENTER ↵</span>`); n.style.width = (f.w || 880) + "px"; }
-    else if (e.type === "bars") { n = mk("div", "bars", e.values.map(() => "<i></i>").join("")); }
+    else if (e.type === "bars") { n = mk("div", "bars " + (e.tone || ""), e.values.map(() => "<i></i>").join("")); }
     else return;
     n.classList.add("el"); stage.appendChild(n); e.node = n;
   });
   EL.forEach(e => { if (e.node) { e.w = e.node.offsetWidth; e.h = e.node.offsetHeight; } });
 
+  /* ---------- studio layer (backdrops + 3D) ---------- */
+  const ST = window.__studio ? await window.__studio({ M, W0, S, EL, TONE, rgba, cl, lerp, eo3, eio3, eoB, prop, win, sceneAt, root: document.getElementById("root") }) : null;
+  const bdEl = document.getElementById("bd"), glEl = document.getElementById("gl");
   /* ---------- canvas drawing ---------- */
   const cv = $("#fx"), ctx = cv.getContext("2d");
   const rot = (x, y, z, ry, rx) => { let c = Math.cos(ry), s = Math.sin(ry), X = x * c + z * s, Z = -x * s + z * c; c = Math.cos(rx); s = Math.sin(rx); const Y = y * c - Z * s; Z = y * s + Z * c; return [X, Y, Z]; };
@@ -179,12 +185,12 @@
   const gpat = gctx.createPattern(tile, "repeat");
   let render; render = function (t) {
     const i = sceneAt(t), sc = S[i], su = cl((t - sc.from) / Math.max(.1, sc.to - sc.from));
-    if (i !== lastScene) { lastScene = i; glowEl.style.setProperty("--glowc", sc.gt ? rgba(sc.gt, sc.gt === "white" ? .07 : .105) : (sc.glow || (W0 ? W0.glow : "rgba(255,255,255,.07)"))); kick.textContent = sc.kicker || ""; ticks.forEach((k, j) => k.classList.toggle("on", j <= i)); }
+    if (i !== lastScene) { lastScene = i; glowEl.style.setProperty("--glowc", sc.gt ? rgba((sc.zone && W0 && W0.zones && W0.zones[sc.zone]) || sc.gt, sc.gt === "white" ? .07 : .105) : (sc.glow || (W0 ? W0.glow : "rgba(255,255,255,.07)"))); kick.textContent = sc.kicker || ""; ticks.forEach((k, j) => k.classList.toggle("on", j <= i)); }
     fill.style.width = (972 * cl(t / T)) + "px";
     kick.style.opacity = M.kickers === false ? 0 : cl((t - sc.from) / .3) * (1 - cl((t - (sc.to - .25)) / .25));
-    S.forEach((s, j) => { if (j !== i) { s.node.style.opacity = 0; return; } s.node.style.opacity = 1 - cl((t - (s.to - .22)) / .22); s.words.forEach((w, q) => { const u = eo3((t - w.t) / .2), el = s.wn[q]; el.style.opacity = u * (w.key ? 1 : .96); el.style.transform = `translateY(${(1 - u) * 10}px) scale(${1 + (w.key ? .09 * Math.sin(Math.PI * cl((t - w.t) / .32)) : 0)})`; if (w.key) el.style.setProperty("--u", eo3((t - w.t - .05) / .3)); }); });
+    S.forEach((s, j) => { if (j !== i) { s.node.style.opacity = 0; return; } s.node.style.opacity = 1 - cl((t - (s.to - .22)) / .22); s.words.forEach((w, q) => { const u = eo3((t - w.t) / .2), el = s.wn[q]; el.style.opacity = W0 && W0.caption === "quiet" ? .3 + .7 * u : u * (w.key ? 1 : .96); el.style.transform = W0 && W0.caption === "quiet" ? `scale(${1 + (w.key ? .04 * Math.sin(Math.PI * cl((t - w.t) / .3)) : 0)})` : `translateY(${(1 - u) * 10}px) scale(${1 + (w.key ? .09 * Math.sin(Math.PI * cl((t - w.t) / .32)) : 0)})`; if (w.key) el.style.setProperty("--u", eo3((t - w.t - .05) / .3)); }); });
     const cam = camAt(t), pu = cam.pu;
-    const ct0 = `translate(${cam.x}px,${cam.y}px) scale(${cam.s})`; stage.style.transform = ct0; glowEl.style.transform = ct0; glowEl.style.opacity = .85 + .55 * pu;
+    const ct0 = `translate(${cam.x}px,${cam.y}px) scale(${cam.s})`; stage.style.transform = ct0; glowEl.style.transform = ct0; if (ST) { ST.back(t); bdEl.style.transform = `translate(${cam.x * .3}px,${cam.y * .3}px) scale(${1 + (cam.s - 1) * .35})`; if (ST.has3d) glEl.style.transform = ct0; } glowEl.style.opacity = .85 + .55 * pu;
     camEl.style.filter = cam.hx > .5 ? (svgB.setAttribute("stdDeviation", cam.hx + " 0"), "url(#hb)") : cam.hy > .5 ? (svgB.setAttribute("stdDeviation", "0 " + cam.hy), "url(#hb)") : cam.blur > .4 ? `blur(${cam.blur}px)` : "none";
     /* canvas */
     ctx.clearRect(0, 0, W, H); ctx.save(); ctx.translate(540 + cam.x, 900 + cam.y); ctx.scale(cam.s, cam.s); ctx.translate(-540, -900);
@@ -201,17 +207,20 @@
       buckets.forEach((arr, q) => { if (!arr.length) return; ctx.fillStyle = rgba(hp.tone, al * (.28 + q * .24)); ctx.beginPath(); for (let n = 0; n < arr.length; n += 3) { const r = 1.6 * arr[n + 2] * (.85 + q * .12) * (1 + .16 * pu); ctx.moveTo(arr[n] + r, arr[n + 1]); ctx.arc(arr[n], arr[n + 1], r, 0, 6.3); } ctx.fill(); });
     }
     EL.forEach(e => { const wv = win(e, t); if (!wv) return; if (e.type === "link") drawLink(e, t, wv); else if (e.type === "obj") drawObj(e, t, wv); else if (e.type === "cells") drawCells(e, t, wv); else if (e.type === "packet") drawPacket(e, t, wv); });
-    FX.shocks.forEach(sk => { const u = (t - sk.t) / .75; if (u < 0 || u > 1) return; [0, .09].forEach((dl, q) => { const uu = cl(u - dl); if (uu <= 0) return; ctx.strokeStyle = rgba(sk.tone || "white", .6 * (1 - uu) * (q ? .6 : 1)); ctx.lineWidth = 1 + 6 * (1 - uu); ctx.beginPath(); ctx.arc(sk.x || 540, sk.y || 900, 50 + 560 * eo3(uu), 0, 6.3); ctx.stroke(); }); });
+    (W0 && W0.shocks === false ? [] : FX.shocks).forEach(sk => { const u = (t - sk.t) / .75; if (u < 0 || u > 1) return; [0, .09].forEach((dl, q) => { const uu = cl(u - dl); if (uu <= 0) return; ctx.strokeStyle = rgba(sk.tone || "white", .6 * (1 - uu) * (q ? .6 : 1)); ctx.lineWidth = 1 + 6 * (1 - uu); ctx.beginPath(); ctx.arc(sk.x || 540, sk.y || 900, 50 + 560 * eo3(uu), 0, 6.3); ctx.stroke(); }); });
     ctx.restore();
+    if (ST && ST.has3d) ST.gl(t, cam);
     /* grain: seeded noise tile jittered at 12 fps = one texture over everything */
     const gf = Math.floor(t * 12), gx = (gf * 53) % 128, gy = (gf * 91) % 128; gctx.setTransform(1, 0, 0, 1, 0, 0); gctx.clearRect(0, 0, 540, 960); gctx.fillStyle = gpat; gctx.setTransform(1, 0, 0, 1, -gx, -gy); gctx.fillRect(gx, gy, 540 + 128, 960 + 128);
     /* DOM */
     EL.forEach(e => {
       const n = e.node; if (!n) return; const wv = win(e, t); if (!wv) { n.style.opacity = 0; return; }
       const f = prop(e, t); let x = f.x, y = f.y; if (e.type === "packet") { const q = packetPos(e, t); x = q[0]; y = q[1] - 38; }
-      const pop = e.type === "stamp" ? eoB((t - wv.t0) / .35) : eo3((t - wv.t0) / .45), sc2 = (f.sc == null ? 1 : f.sc) * (e.type === "stamp" ? lerp(1.7, 1, pop) : lerp(.94, 1, pop)), rotz = e.type === "stamp" ? (f.rot == null ? -6 : f.rot) : 0;
-      const isO = e.type === "obj", off = isO ? (f.ly == null ? ((f.h3 || 110) * .55 + (f.d3 || 110) * .25) * OS + 34 : f.ly) : 0, dy = (e.type === "packet" || isO) ? 0 : (1 - pop) * 16, ox = e.w / 2, oy = isO ? 0 : e.h / 2;
-      n.style.transform = `translate(${x - ox}px,${y - oy + off + dy}px) rotate(${rotz}deg) scale(${sc2})`; n.style.opacity = wv.a * (f.alpha == null ? 1 : f.alpha);
+      const pop = e.type === "stamp" ? eoB((t - wv.t0) / .35) : eo3((t - wv.t0) / .45), iv = e.in || "rise", iu = 1 - pop; let sc2 = (f.sc == null ? 1 : f.sc) * (e.type === "stamp" ? lerp(1.7, 1, pop) : lerp(.94, 1, pop)), rotz = e.type === "stamp" ? (f.rot == null ? (W0 && W0.stamp_rot != null ? W0.stamp_rot : -6) : f.rot) : 0, ex = 0, flt = "", fx3 = 0;
+      const isO = e.type === "obj" || e.type === "gl", off = isO ? (f.ly == null ? (e.type === "gl" ? (e.kind === "cubes" ? ((Math.ceil((e.n || 12) / (e.cols || 4)) * (e.cw || 120) * .8 + (e.cw || 120) * 1.15) / 2 + 34) : e.kind === "db" ? ((e.n || 3) * 62 / 2 + 46) : e.h3 ? e.h3 / 2 + 36 : (e.r || 150) + 56) : ((f.h3 || 110) * .55 + (f.d3 || 110) * .25) * OS + 34) : f.ly) : 0; let dy = (e.type === "packet" || isO) ? 0 : (1 - pop) * 16; const ox = e.w / 2, oy = isO ? 0 : e.h / 2;
+      if (!isO && e.type !== "stamp") { if (iv === "left") ex = -170 * iu; else if (iv === "right") ex = 170 * iu; else if (iv === "drop") dy = -110 * iu; else if (iv === "scale") sc2 = (f.sc == null ? 1 : f.sc) * lerp(.55, 1, eoB((t - wv.t0) / .5)); else if (iv === "blur") flt = `blur(${(18 * iu).toFixed(1)}px)`; else if (iv === "flip") fx3 = -75 * iu; else if (W0 && W0.style === "ink") flt = `blur(${(7 * iu).toFixed(1)}px)`; }
+      const tilt = (f.tiltx || fx3 || f.tilty) ? `perspective(1500px) rotateX(${(f.tiltx || 0) + fx3}deg) rotateY(${f.tilty || 0}deg) ` : "";
+      n.style.transform = `translate(${x - ox + ex}px,${y - oy + off + dy}px) ${tilt}rotate(${rotz}deg) scale(${sc2})`; n.style.opacity = wv.a * (f.alpha == null ? 1 : f.alpha); n.style.filter = flt || "none";
       n.style.transformOrigin = `${ox}px ${oy}px`;
       const el = e.type, ln = n.querySelector(".ln");
       if (el === "card" && ln) { const lines = f.lines || e.lines || []; if (e.type_cps) { let left = Math.max(0, Math.floor((t - wv.t0 - .25) * e.type_cps)), out = [], cursor = false; for (const L of lines) { const h = mark(L), pl = plainLen(h); out.push(trunc(h, left)); left -= pl + 1; if (left <= 0) { cursor = true; break; } } ln.innerHTML = out.join("\n") + (cursor && Math.floor(t * 2) % 2 ? '<span class="g">▍</span>' : ""); } else ln.innerHTML = lines.map(mark).join("\n"); n.classList.toggle("on", !!f.on); n.classList.toggle("dash", !!f.dash); }
@@ -219,6 +228,8 @@
       else if (el === "search") { const s = e.text || "", c = Math.floor(cl((t - wv.t0 - .2) * (e.cps || 14), 0, s.length)); n.querySelector(".tt").innerHTML = c ? s.slice(0, c).replace(/</g, "&lt;") + (Math.floor(t * 2) % 2 ? '<span class="car"></span>' : "") : `<span class="ph">${e.ph || "Search or type a URL"}</span>` + (Math.floor(t * 2) % 2 ? '<span class="car"></span>' : ""); }
       else if (el === "list") { const act = Math.round(f.active == null ? -1 : f.active); n.querySelectorAll(".it").forEach((it, j) => { it.style.opacity = eo3((t - wv.t0 - .25 - j * .11) / .3); it.classList.toggle("on", j === act); }); }
       else if (el === "compare") { n.querySelectorAll(".card").forEach((c, j) => { const on = f.active === j; c.classList.toggle("on", on); c.classList.toggle("dash", !on && f.active != null && f.active >= 0); }); }
+      else if (el === "big") { n.querySelectorAll(".bl").forEach((b, j) => { const u = eo3((t - wv.t0 - j * .14) / .45); b.style.opacity = u; b.style.transform = `translateY(${(1 - u) * 26}px)`; b.style.filter = u < .98 ? `blur(${(1 - u) * 10}px)` : "none"; }); }
+      else if (el === "rows") { const rowsEl = n.querySelectorAll(".rw"); rowsEl.forEach((rw, j) => { const [stt, since] = stateSince(e, t, fr => (fr.st || [])[j] || "idle"), u = eio3((t - since) / .32), ap = eo3((t - wv.t0 - .1 - j * .1) / .35); rw.className = "rw " + stt; rw.style.setProperty("--u", u); rw.style.opacity = ap * (stt === "dim" ? lerp(1, .38, u) : 1); rw.style.transform = `translateY(${(1 - ap) * 18}px) scale(${1 + .035 * Math.sin(Math.PI * u) * (stt === "idle" ? 0 : 1)})`; rw.querySelector(".st").textContent = stt === "ok" ? "✓" : stt === "fail" ? "✗" : stt === "run" ? "•••".slice(0, 1 + Math.floor(t * 4) % 3) : ""; }); }
       else if (el === "bars") { n.querySelectorAll("i").forEach((b, j) => { b.style.height = (e.values[j] * 150 * eo3((t - wv.t0 - j * .08) / .6)) + "px"; b.style.opacity = j === f.active ? 1 : .55; }); }
     });
   }
@@ -229,8 +240,20 @@
   if (CV && cvEl) { document.getElementById("root").classList.add("cover"); const fs = Math.round(Math.max(92, Math.min(150, 880 / (.6 * Math.max(...CV.lines.map(l => String(l).length)))))); cvEl.innerHTML = `<div class="cv-k">${CV.kicker || ""}</div><div class="cv-w" style="font-size:${fs}px;line-height:${Math.round(fs * 1.04)}px">` + CV.lines.map((l, i) => `<div class="cv-l${i === (CV.accent == null ? 1 : CV.accent) ? " ac" : ""}">${l}</div>`).join("") + `</div><div class="cv-b">${M.handle}  ·  ${M.series}</div>`; }
   function hlRender(t) { if (!HL || !hlEl) return; const t1 = HL.t1 || 2.3, u = eo3(t / .35); hlEl.style.opacity = CV ? 0 : 1 - cl((t - t1) / .25); hlEl.style.transform = `translateY(${(1 - u) * 14}px) scale(${1.05 - .05 * u})`; hlEl.querySelectorAll("s").forEach(s => s.style.setProperty("--s", eo3((t - .5) / .3))); }
   const _render = render; render = t => { _render(t); hlRender(t); };
+  /* layout probe (used by scripts/layout_check.py): boxes of everything visible at time t, in 1080x1920 px; 3D objects are boxed analytically */
+  const glBox = (e, f) => { const R = (e.r || 150) * (f.sc == null ? 1 : f.sc), k = e.kind, x = f.x, y = f.y, sc = f.sc == null ? 1 : f.sc;
+    let w = 2 * R, h = 2 * R; if (k === "slab") { w = (e.w3 || 300) * sc * 1.06; h = (e.h3 || 200) * sc; } else if (k === "db") { w = (e.w3 || 240) * sc; h = ((e.n || 3) * 62) * sc; } else if (k === "server") { w = (e.w3 || 300) * sc; h = (e.h3 || 240) * sc; } else if (k === "cubes") { const cw = (e.cw || 120) * sc, cols = e.cols || 4, rows = Math.ceil((e.n || 12) / cols); w = cols * cw * 1.0; h = rows * cw * .8 + cw * 1.15; } else if (k === "capsule") { const horiz = Math.abs((f.grz || 0) - 1.5708) < .4; w = horiz ? 2 * R : .9 * R; h = horiz ? .9 * R : 2 * R; } else if (k === "ribbon") { const P = e.pts || [[-380, 80], [380, 40]], xs = P.map(p => p[0]), ys = P.map(p => p[1]); w = (Math.max(...xs) - Math.min(...xs)) * sc; h = (Math.max(...ys) - Math.min(...ys)) * sc + 30; } else if (k === "shield") { w = 1.8 * R; h = 2.1 * R; }
+    return { l: x - w / 2, t: y - h / 2, r: x + w / 2, b: y + h / 2 }; };
+  window.__layout = (t, minA = .85) => { render(t); const out = [];
+    EL.forEach(e => { const wv = win(e, t); if (!wv || wv.a < minA || e.type === "link") return; const f = prop(e, t);
+      if (e.type === "packet") return; if ((e.type === "gl" || e.type === "cells" || e.type === "obj") && e.type === "gl") out.push({ id: e.id, kind: "gl:" + e.kind, ...glBox(e, f), ok: !!e.overlap_ok });
+      if (e.node) { const r = e.node.getBoundingClientRect(), nm = e.type === "gl" ? "label" : e.type; if (r.width > 4 && r.height > 4) out.push({ id: e.id, kind: nm, l: r.left, t: r.top, r: r.right, b: r.bottom, ok: !!e.overlap_ok }); } });
+    if (hlEl && +getComputedStyle(hlEl).opacity > .5) { const hr = hlEl.getBoundingClientRect(); out.push({ id: "headline", kind: "headline", l: hr.left, t: hr.top, r: hr.right, b: hr.bottom }); }
+    const act = S.find(q => +q.node.style.opacity > .5), cp = (act ? act.node : document.getElementById("cap")).getBoundingClientRect(); out.push({ id: "caption", kind: "caption", l: cp.left, t: cp.top, r: cp.right, b: cp.bottom });
+    return out; };
   const prevT0 = shape({ shape: "cloud", r: 420 });
   render(0);
+  if (/[?&]layout=1/.test(location.search)) { const out = S.map((s, i) => ({ i, from: s.from, samples: [s.from + Math.min(1.5, (s.to - s.from) * .6), s.to - .5].filter(x => x > s.from + .5).map(t => ({ t: +t.toFixed(2), boxes: window.__layout(t).map(b => ({ ...b, l: Math.round(b.l), t: Math.round(b.t), r: Math.round(b.r), b: Math.round(b.b) })) })) })); const pre = document.createElement("pre"); pre.id = "__layout"; pre.textContent = JSON.stringify(out); document.body.appendChild(pre); const tr = document.createElement("pre"); tr.id = "__trans"; tr.textContent = JSON.stringify(S.slice(1).map((s, i) => ({ i: i + 1, samples: [.05, .12, .2, .3].map(d => ({ t: +(s.from + d).toFixed(2), boxes: window.__layout(s.from + d, .12).filter(b => b.kind !== "caption" && b.kind !== "headline").map(b => ({ ...b, l: Math.round(b.l), t: Math.round(b.t), r: Math.round(b.r), b: Math.round(b.b) })) })) }))); document.body.appendChild(tr); render(0); }
   const tl = gsap.timeline({ paused: true }); tl.to({}, { duration: T, ease: "none", onUpdate() { render(this.time()); } }, 0);
   window.__timelines = window.__timelines || {}; window.__timelines["main"] = tl; window.__explainerRender = render;
 })();

@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import config
 HERE = os.path.dirname(os.path.abspath(__file__)); SKILL = os.path.dirname(HERE)
 MODELS = [os.path.expanduser(p) for p in ("~/.cache/hyperframes/whisper/models/ggml-small.en.bin", "~/.cache/hyperframes/whisper/models/ggml-medium.en.bin", "~/.cache/whisper/ggml-small.en.bin")]
 GSAP = os.path.expanduser("~/.cache/explainer-skill/gsap.min.js")
-FRAME_KEYS = {"x", "y", "sc", "alpha", "tone", "active", "on", "dash", "w", "w3", "h3", "d3", "ry", "rx", "ly", "gap", "rot", "cw", "lit", "vals", "tones", "lines"}
+FRAME_KEYS = {"x", "y", "sc", "alpha", "tone", "active", "on", "dash", "w", "w3", "h3", "d3", "ry", "rx", "ly", "gap", "rot", "cw", "lit", "vals", "tones", "lines", "tiltx", "tilty", "grx", "gry", "grz", "spin", "z", "bob", "draw", "st"}
 GLOW = {"white": "rgba(255,255,255,.07)", "red": "rgba(255,77,94,.11)", "blue": "rgba(90,169,255,.11)", "yellow": "rgba(255,210,63,.09)", "green": "rgba(74,222,128,.10)", "violet": "rgba(167,139,250,.11)"}
 
 
@@ -342,6 +342,7 @@ def main():
         if f.endswith(".ttf"): shutil.copy(os.path.join(SKILL, "assets", "fonts", f), os.path.join(a, "fonts", f))
     if not os.path.exists(GSAP): sys.exit("GSAP missing: run scripts/setup.sh")
     shutil.copy(GSAP, os.path.join(a, "gsap.min.js"))
+    os.makedirs(os.path.join(a, "vendor"), exist_ok=True); shutil.copy(os.path.join(SKILL, "assets", "vendor", "three.module.min.js"), os.path.join(a, "vendor", "three.module.min.js"))
     sys.path.insert(0, HERE); import audio_lib, fx_plan
     # ---- facts gate (reel-edit SKILL.md section 4 "on-screen facts", motion.md): every data visual is sourced or visibly labelled as a simplified example
     facts, notes = [], []
@@ -349,7 +350,7 @@ def main():
         if el["type"] in ("counter", "bars"):
             src = el.get("src"); st = "sourced" if src else "illustrative"
             facts.append({"id": el["id"], "type": el["type"], "value": (f'{el.get("from")}->{el.get("to")}' if el["type"] == "counter" else el.get("values")), "status": st, "src": src or None})
-            notes.append({"id": "note_" + el["id"], "type": "note", "text": (f"SOURCE: {src}" if src else meta.get("illustrative_label", "SIMPLIFIED EXAMPLE · NUMBERS ARE ILLUSTRATIVE")), "wins": el["wins"], "ats": [x + .1 for x in el["ats"]], "frames": [{"t": el["frames"][0]["t"], "x": 540, "y": 1452}], "dflt": [False] * len(el["wins"])})
+            notes.append({"id": "note_" + el["id"], "type": "note", "text": (f"SOURCE: {src}" if src else meta.get("illustrative_label", "SIMPLIFIED EXAMPLE · NUMBERS ARE ILLUSTRATIVE")), "wins": el["wins"], "ats": [x + .1 for x in el["ats"]], "frames": [{"t": el["frames"][0]["t"], "x": 540, "y": 1430}], "dflt": [False] * len(el["wins"])})
         elif el["type"] in ("chip", "card", "big", "list", "compare", "stamp") and re.search(r"\d", json.dumps({k: el.get(k) for k in ("text", "lines", "items", "cards")}, ensure_ascii=False)):
             facts.append({"id": el["id"], "type": el["type"], "value": el.get("text") or el.get("lines") or el.get("items"), "status": "sourced" if el.get("src") else "illustrative" if el.get("illustrative") else "unchecked", "src": el.get("src")})
     uniq = {}
@@ -366,7 +367,8 @@ def main():
     wname = meta.get("world")
     if wname not in worlds:                                                    # auto: never repeat either of the last two reels' worlds (variety.md section 1)
         last2 = [r["world"] for r in slog if r.get("reel") != name][-2:]
-        pool = [w for w in worlds if w not in last2] or list(worlds)
+        studio = [w for w in worlds if worlds[w].get("tier") == "studio"] or list(worlds)                  # the multicolour 3D worlds are the default look; the classic mono worlds only on request
+        pool = [w for w in studio if w not in last2] or studio
         wname = pool[audio_lib.seed(name, "world") % len(pool)]
     wd = worlds[wname]; meta["world"] = wname; meta["world_def"] = wd
     print(f"WORLD: {wname} ({wd['label']})" + (f"; last two were {', '.join(r['world'] for r in slog[-2:])}" if slog else ""))
@@ -378,7 +380,18 @@ def main():
         if not music: print("WARNING: no music library found (set music_dir in config.local.json, or run scripts/build_music_index.py on a folder of tracks you may use): building WITHOUT music. Every explainer should have a bed.")
     beats = music["beats"] if music else []
     fx = fx_plan.plan_fx(scenes, els, total, beats, name, wd.get("trans"), wd.get("punch", 1.0))
-    for tr in fx["trans"]:                                                    # no empty frames after a cut: default-timed objects of the incoming scene are already there at the cut
+    ed = wd.get("enter_delay")
+    if ed:                                                                   # calm worlds: the old scene is gone (exit 0.16 s) before anything new enters, so nothing ever overlaps at a cut
+        for el in els:
+            for wi, (wa, wb) in enumerate(el["wins"]):
+                if abs(wa - el["frames"][0]["t"]) < .01 or el["frames"] and any(abs(fr["t"] - wa) < .01 for fr in el["frames"]):
+                    if el["type"] != "note": el["ats"][wi] = round(max(el["ats"][wi], wa + ed), 2)
+        for s_ in scenes:
+            k_ = 0
+            for el in els:
+                for wi, (wa, wb) in enumerate(el["wins"]):
+                    if abs(wa - s_["from"]) < .01 and el.get("dflt", [])[wi:wi + 1] == [True] and el["type"] != "note": el["ats"][wi] = round(s_["from"] + ed + .1 * k_, 2); k_ += 1
+    for tr in ([] if ed else fx["trans"]):                                  # no empty frames after a cut: default-timed objects of the incoming scene are already there at the cut
         s_, k_ = scenes[tr["i"]], 0
         for el in els:
             for wi, (wa, wb) in enumerate(el["wins"]):
@@ -399,21 +412,21 @@ def main():
     json.dump({"total": total, "voice_end": round(min(dur, last_w + .6), 2), "cta_t": cta_t, "music": ({"path": "assets/audio/bgm.mp3", **{k: v for k, v in music.items() if k != "beats"}} if music else None), "cues": cues}, open(os.path.join(a, "audio_plan.json"), "w"), indent=1)
     if music: open(os.path.join(a, "music_credit.txt"), "w").write(f"{music['file']} | {music['source']} | {music['licence']}\n")
     audio = [f'<audio id="voice" src="assets/audio/voice.wav" data-start="0" data-duration="{dur:.2f}" data-track-index="1" data-volume="1"></audio>']   # preview only: the final audio is assets/audio/master.wav (mix_audio.py)
-    data = {"meta": meta, "total": total, "scenes": [{k: v for k, v in s.items() if k in ("from", "to", "words", "hero", "kicker", "glow", "gt")} for s in scenes], "els": els, "fx": fx, "beats": beats}
+    data = {"meta": meta, "total": total, "scenes": [{k: v for k, v in s.items() if k in ("from", "to", "words", "hero", "kicker", "glow", "gt", "bg", "zone", "flash", "flash_at")} for s in scenes], "els": els, "fx": fx, "beats": beats}
     json.dump({"scenes": [{"from": s["from"], "to": s["to"], "words": [{"t": w["t"], "txt": w["txt"]} for w in s["words"]]} for s in scenes], "last_word": round(last_w, 2), "total": total}, open(os.path.join(a, "captions.json"), "w"), ensure_ascii=False)
-    css = open(os.path.join(HERE, "explainer.css"), encoding="utf-8").read(); eng = open(os.path.join(HERE, "engine.js"), encoding="utf-8").read()
+    css = open(os.path.join(HERE, "explainer.css"), encoding="utf-8").read(); eng = open(os.path.join(HERE, "engine.js"), encoding="utf-8").read(); studio = open(os.path.join(HERE, "studio.js"), encoding="utf-8").read()
     html = f"""<!doctype html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1080, height=1920"/><title>{meta["handle"]}</title>
 <script src="assets/gsap.min.js"></script><style>{css}</style></head><body>
 <div id="root" data-composition-id="main" data-start="0" data-duration="{total}" data-width="1080" data-height="1920">
 {chr(10).join(audio)}
-<div id="cam"><div id="glow"></div><canvas id="fx" width="1080" height="1920" data-layout-allow-overflow></canvas><div id="stage"></div></div><canvas id="grain" width="540" height="960" data-layout-ignore></canvas>
+<canvas id="bd" width="1080" height="1920" data-layout-ignore></canvas><div id="cam"><div id="glow"></div><canvas id="fx" width="1080" height="1920" data-layout-allow-overflow></canvas><canvas id="gl" width="1080" height="1920" data-layout-ignore data-layout-allow-overflow></canvas><div id="stage"></div></div><canvas id="grain" width="540" height="960" data-layout-ignore></canvas>
 <svg width="0" height="0" style="position:absolute"><filter id="hb" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur id="hbv" stdDeviation="0 0"/></filter></svg>
 <div id="hl"></div><div id="cv"></div>
 <div id="hud"><div id="brand"></div><div id="series" data-layout-ignore></div><div id="rail"><div id="fill"></div></div><div id="kicker" data-layout-ignore></div><div id="cap"></div></div>
 </div>
 <script>window.EXPLAINER={json.dumps(data, ensure_ascii=False)};</script>
-<script>{eng}</script></body></html>"""
+<script>{studio}</script><script>{eng}</script></body></html>"""
     open(os.path.join(proj, "index.html"), "w", encoding="utf-8").write(html)
     try:
         slog = [r for r in slog if r.get("reel") != name] + [{"reel": name, "world": wname, "music": music["file"] if music else None, "genre": music.get("genre") if music else None, "trans": [t["type"] for t in fx["trans"]], "date": __import__("datetime").date.today().isoformat()}]

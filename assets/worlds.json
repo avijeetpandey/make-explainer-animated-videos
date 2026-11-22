@@ -1,30 +1,612 @@
 {
  "mono_pulse": {
   "label": "Mono Pulse (the original: near-black, white mono, one accent per concept)",
-  "bg": "#050506", "glow": "rgba(255,255,255,.07)",
-  "tones": {"white": "#f4f4f5", "red": "#ff4d5e", "blue": "#5aa9ff", "yellow": "#ffd23f", "green": "#4ade80", "violet": "#a78bfa"},
-  "caption": "underline", "overlay": "none", "grain": 0.5, "drift": 0.04, "punch": 1.0,
-  "trans": ["whip_h", "blur_in", "whip_v", "push"], "music_genres": {"house": 4, "technology": 4, "tech-house": 3}
+  "bg": "#050506",
+  "glow": "rgba(255,255,255,.07)",
+  "tones": {
+   "white": "#f4f4f5",
+   "red": "#ff4d5e",
+   "blue": "#5aa9ff",
+   "yellow": "#ffd23f",
+   "green": "#4ade80",
+   "violet": "#a78bfa"
+  },
+  "caption": "underline",
+  "overlay": "none",
+  "grain": 0.5,
+  "drift": 0.04,
+  "punch": 1.0,
+  "trans": [
+   "whip_h",
+   "blur_in",
+   "whip_v",
+   "push"
+  ],
+  "music_genres": {
+   "house": 4,
+   "technology": 4,
+   "tech-house": 3
+  },
+  "tier": "classic"
  },
  "blueprint": {
   "label": "Blueprint (deep navy, engineering grid, cyan primary, marker-highlight key words)",
-  "bg": "#03060f", "glow": "rgba(76,201,255,.10)",
-  "tones": {"white": "#e6f1ff", "red": "#ff6b81", "blue": "#4cc9ff", "yellow": "#ffd166", "green": "#5eead4", "violet": "#8ea2ff"},
-  "caption": "highlight", "overlay": "grid", "grain": 0.4, "drift": 0.045, "punch": 1.1,
-  "trans": ["blur_in", "whip_h", "push", "whip_v"], "music_genres": {"techno": 6, "technology": 5, "electronic": 3}
+  "bg": "#03060f",
+  "glow": "rgba(76,201,255,.10)",
+  "tones": {
+   "white": "#e6f1ff",
+   "red": "#ff6b81",
+   "blue": "#4cc9ff",
+   "yellow": "#ffd166",
+   "green": "#5eead4",
+   "violet": "#8ea2ff"
+  },
+  "caption": "highlight",
+  "overlay": "grid",
+  "grain": 0.4,
+  "drift": 0.045,
+  "punch": 1.1,
+  "trans": [
+   "blur_in",
+   "whip_h",
+   "push",
+   "whip_v"
+  ],
+  "music_genres": {
+   "techno": 6,
+   "technology": 5,
+   "electronic": 3
+  },
+  "tier": "classic"
  },
  "amber_signal": {
   "label": "Amber Signal (warm black, amber primary, serif-italic key words: editorial)",
-  "bg": "#080503", "glow": "rgba(255,180,84,.09)",
-  "tones": {"white": "#fff3df", "red": "#ff5a4f", "blue": "#ffb454", "yellow": "#ff8a4c", "green": "#b6e36b", "violet": "#f08ad8"},
-  "caption": "serif", "overlay": "none", "grain": 0.55, "drift": 0.05, "punch": 0.9,
-  "trans": ["push", "whip_v", "blur_in", "whip_h"], "music_genres": {"tech-house": 6, "house": 5, "technology": 2}
+  "bg": "#080503",
+  "glow": "rgba(255,180,84,.09)",
+  "tones": {
+   "white": "#fff3df",
+   "red": "#ff5a4f",
+   "blue": "#ffb454",
+   "yellow": "#ff8a4c",
+   "green": "#b6e36b",
+   "violet": "#f08ad8"
+  },
+  "caption": "serif",
+  "overlay": "none",
+  "grain": 0.55,
+  "drift": 0.05,
+  "punch": 0.9,
+  "trans": [
+   "push",
+   "whip_v",
+   "blur_in",
+   "whip_h"
+  ],
+  "music_genres": {
+   "tech-house": 6,
+   "house": 5,
+   "technology": 2
+  },
+  "tier": "classic"
  },
  "terminal_green": {
   "label": "Terminal Green (phosphor black, scanlines, mono captions)",
-  "bg": "#020a06", "glow": "rgba(56,245,139,.08)",
-  "tones": {"white": "#e9fff2", "red": "#ff6262", "blue": "#38f58b", "yellow": "#d4f55e", "green": "#36d6a0", "violet": "#22d3ee"},
-  "caption": "mono", "overlay": "scan", "grain": 0.6, "drift": 0.035, "punch": 1.0,
-  "trans": ["whip_h", "push", "whip_v", "blur_in"], "music_genres": {"techno": 6, "electronic": 5, "electro-house": 3}
+  "bg": "#020a06",
+  "glow": "rgba(56,245,139,.08)",
+  "tones": {
+   "white": "#e9fff2",
+   "red": "#ff6262",
+   "blue": "#38f58b",
+   "yellow": "#d4f55e",
+   "green": "#36d6a0",
+   "violet": "#22d3ee"
+  },
+  "caption": "mono",
+  "overlay": "scan",
+  "grain": 0.6,
+  "drift": 0.035,
+  "punch": 1.0,
+  "trans": [
+   "whip_h",
+   "push",
+   "whip_v",
+   "blur_in"
+  ],
+  "music_genres": {
+   "techno": 6,
+   "electronic": 5,
+   "electro-house": 3
+  },
+  "tier": "classic"
+ },
+ "neon_studio": {
+  "label": "Neon Studio (deep navy aurora in blue/violet/red, glossy 3D objects, glass cards, zone colours: red problem, blue mechanism, green fix, violet outro)",
+  "tier": "expressive",
+  "style": "glass",
+  "theme": "dark",
+  "bg": "#05061a",
+  "glow": "rgba(0,0,0,0)",
+  "glow_off": true,
+  "tones": {
+   "white": "#f4f6ff",
+   "red": "#ff4d6d",
+   "blue": "#4d8dff",
+   "yellow": "#ffb454",
+   "green": "#3ddc97",
+   "violet": "#a56bff"
+  },
+  "backdrop": {
+   "kind": "aurora",
+   "base": "#05061a",
+   "colors": [
+    "blue",
+    "violet",
+    "red"
+   ]
+  },
+  "zones": {
+   "problem": "red",
+   "twist": "yellow",
+   "mechanism": "blue",
+   "data": "blue",
+   "solution": "green",
+   "outro": "violet"
+  },
+  "gl_env": [
+   "blue",
+   "violet",
+   "yellow",
+   "white"
+  ],
+  "gl_exposure": 1.12,
+  "caption": "glow",
+  "overlay": "none",
+  "grain": 0.2,
+  "drift": 0.05,
+  "punch": 1.15,
+  "trans": [
+   "blur_in",
+   "whip_h",
+   "push",
+   "whip_v"
+  ],
+  "music_genres": {
+   "house": 5,
+   "tech-house": 5,
+   "technology": 4,
+   "electro-house": 3
+  }
+ },
+ "fluted_chrome": {
+  "label": "Fluted Chrome (reeded-glass backdrop in teal/blue light, chrome type, glass cards)",
+  "tier": "expressive",
+  "style": "glass",
+  "theme": "dark",
+  "bg": "#03080c",
+  "glow": "rgba(0,0,0,0)",
+  "glow_off": true,
+  "tones": {
+   "white": "#f2f8ff",
+   "red": "#ff5a6e",
+   "blue": "#38c6ff",
+   "yellow": "#ffc857",
+   "green": "#35f0c0",
+   "violet": "#9d8bff"
+  },
+  "backdrop": {
+   "kind": "fluted",
+   "base": "#03080c",
+   "colors": [
+    "blue",
+    "green"
+   ],
+   "sw": 58
+  },
+  "zones": {
+   "problem": "red",
+   "twist": "yellow",
+   "mechanism": "blue",
+   "data": "blue",
+   "solution": "green",
+   "outro": "violet"
+  },
+  "gl_env": [
+   "blue",
+   "green",
+   "white",
+   "violet"
+  ],
+  "gl_exposure": 1.05,
+  "caption": "glow",
+  "overlay": "none",
+  "grain": 0.2,
+  "drift": 0.04,
+  "punch": 1.0,
+  "trans": [
+   "push",
+   "blur_in",
+   "whip_v",
+   "whip_h"
+  ],
+  "music_genres": {
+   "techno": 6,
+   "technology": 5,
+   "electronic": 3
+  }
+ },
+ "sunset_duotone": {
+  "label": "Sunset Duotone (navy to orange gradient, dot grid, warm glass, lime highlight words)",
+  "tier": "expressive",
+  "style": "glass",
+  "theme": "dark",
+  "bg": "#0a1445",
+  "glow": "rgba(0,0,0,0)",
+  "glow_off": true,
+  "tones": {
+   "white": "#fff7ee",
+   "red": "#ff4f6a",
+   "blue": "#7fb2ff",
+   "yellow": "#ffd166",
+   "green": "#7dffb2",
+   "violet": "#c79bff"
+  },
+  "backdrop": {
+   "kind": "duotone",
+   "colors": [
+    "#0a1445",
+    "#ff7a2f"
+   ]
+  },
+  "zones": {
+   "problem": "red",
+   "twist": "yellow",
+   "mechanism": "blue",
+   "data": "blue",
+   "solution": "green",
+   "outro": "violet"
+  },
+  "gl_env": [
+   "yellow",
+   "blue",
+   "white",
+   "violet"
+  ],
+  "gl_exposure": 1.1,
+  "caption": "lime",
+  "overlay": "none",
+  "grain": 0.2,
+  "drift": 0.045,
+  "punch": 1.1,
+  "trans": [
+   "whip_h",
+   "push",
+   "blur_in",
+   "whip_v"
+  ],
+  "music_genres": {
+   "tech-house": 6,
+   "house": 5,
+   "technology": 3
+  }
+ },
+ "editorial_studio": {
+  "label": "Editorial Studio (dark studio spotlight, chapters flip to a cream editorial page with lime pills; serif-italic + condensed type)",
+  "tier": "expressive",
+  "style": "glass",
+  "theme": "dark",
+  "bg": "#07081a",
+  "glow": "rgba(0,0,0,0)",
+  "glow_off": true,
+  "tones": {
+   "white": "#f6f4ff",
+   "red": "#ff5470",
+   "blue": "#5b8cff",
+   "yellow": "#ffbe55",
+   "green": "#46e3a0",
+   "violet": "#b07cff"
+  },
+  "backdrop": {
+   "kind": "studio",
+   "base": "#07081a",
+   "colors": [
+    "blue",
+    "violet"
+   ]
+  },
+  "zones": {
+   "problem": "red",
+   "twist": "yellow",
+   "mechanism": "blue",
+   "data": "blue",
+   "solution": "green",
+   "outro": "violet"
+  },
+  "gl_env": [
+   "blue",
+   "violet",
+   "yellow",
+   "white"
+  ],
+  "gl_exposure": 1.1,
+  "caption": "lime",
+  "overlay": "none",
+  "grain": 0.2,
+  "drift": 0.045,
+  "punch": 1.05,
+  "trans": [
+   "blur_in",
+   "push",
+   "whip_h",
+   "whip_v"
+  ],
+  "music_genres": {
+   "house": 5,
+   "tech-house": 5,
+   "technology": 4
+  }
+ },
+ "ink_blue": {
+  "label": "Ink Blue (near-black navy, one blue accent, dark glass objects, quiet type: the calm premium default)",
+  "tier": "studio",
+  "style": "ink",
+  "theme": "dark",
+  "mat": "obsidian",
+  "bg": "#060912",
+  "glow": "rgba(0,0,0,0)",
+  "glow_off": true,
+  "tones": {
+   "white": "#f3f5fb",
+   "red": "#ee6a80",
+   "blue": "#5b8def",
+   "yellow": "#e6b45f",
+   "green": "#52cfa0",
+   "violet": "#9d89f3"
+  },
+  "backdrop": {
+   "kind": "ink",
+   "base": "#060912",
+   "colors": [
+    "blue",
+    "violet"
+   ]
+  },
+  "accent": "blue",
+  "zones": {
+   "problem": "red",
+   "twist": "yellow",
+   "mechanism": "blue",
+   "data": "blue",
+   "solution": "green",
+   "outro": "violet"
+  },
+  "zone_mix": 0.38,
+  "gl_env": [
+   "blue",
+   "blue",
+   "white",
+   "violet"
+  ],
+  "gl_exposure": 1.0,
+  "caption": "quiet",
+  "overlay": "none",
+  "grain": 0.16,
+  "drift": 0.018,
+  "punch": 0.5,
+  "snap": 0.04,
+  "shocks": false,
+  "flash_gain": 0,
+  "stamp_rot": -2,
+  "trans": [
+   "blur_in",
+   "push",
+   "blur_in",
+   "push"
+  ],
+  "music_genres": {
+   "house": 5,
+   "tech-house": 5,
+   "technology": 4,
+   "techno": 3
+  },
+  "exit": 0.16,
+  "enter_delay": 0.3
+ },
+ "ink_violet": {
+  "label": "Ink Violet (near-black, one violet accent)",
+  "tier": "studio",
+  "style": "ink",
+  "theme": "dark",
+  "mat": "obsidian",
+  "bg": "#060912",
+  "glow": "rgba(0,0,0,0)",
+  "glow_off": true,
+  "tones": {
+   "white": "#f3f5fb",
+   "red": "#ee6a80",
+   "blue": "#5b8def",
+   "yellow": "#e6b45f",
+   "green": "#52cfa0",
+   "violet": "#9d89f3"
+  },
+  "backdrop": {
+   "kind": "ink",
+   "base": "#060912",
+   "colors": [
+    "violet",
+    "blue"
+   ]
+  },
+  "accent": "violet",
+  "zones": {
+   "problem": "red",
+   "twist": "yellow",
+   "mechanism": "blue",
+   "data": "blue",
+   "solution": "green",
+   "outro": "violet"
+  },
+  "zone_mix": 0.38,
+  "gl_env": [
+   "violet",
+   "violet",
+   "white",
+   "blue"
+  ],
+  "gl_exposure": 1.0,
+  "caption": "quiet",
+  "overlay": "none",
+  "grain": 0.16,
+  "drift": 0.018,
+  "punch": 0.5,
+  "snap": 0.04,
+  "shocks": false,
+  "flash_gain": 0,
+  "stamp_rot": -2,
+  "trans": [
+   "blur_in",
+   "push",
+   "blur_in",
+   "push"
+  ],
+  "music_genres": {
+   "house": 5,
+   "tech-house": 5,
+   "technology": 4,
+   "techno": 3
+  },
+  "exit": 0.16,
+  "enter_delay": 0.3
+ },
+ "ink_teal": {
+  "label": "Ink Teal (near-black, one teal-green accent)",
+  "tier": "studio",
+  "style": "ink",
+  "theme": "dark",
+  "mat": "obsidian",
+  "bg": "#060912",
+  "glow": "rgba(0,0,0,0)",
+  "glow_off": true,
+  "tones": {
+   "white": "#f3f5fb",
+   "red": "#ee6a80",
+   "blue": "#5b8def",
+   "yellow": "#e6b45f",
+   "green": "#52cfa0",
+   "violet": "#9d89f3"
+  },
+  "backdrop": {
+   "kind": "ink",
+   "base": "#060912",
+   "colors": [
+    "green",
+    "blue"
+   ]
+  },
+  "accent": "green",
+  "zones": {
+   "problem": "red",
+   "twist": "yellow",
+   "mechanism": "blue",
+   "data": "blue",
+   "solution": "green",
+   "outro": "violet"
+  },
+  "zone_mix": 0.38,
+  "gl_env": [
+   "green",
+   "green",
+   "white",
+   "blue"
+  ],
+  "gl_exposure": 1.0,
+  "caption": "quiet",
+  "overlay": "none",
+  "grain": 0.16,
+  "drift": 0.018,
+  "punch": 0.5,
+  "snap": 0.04,
+  "shocks": false,
+  "flash_gain": 0,
+  "stamp_rot": -2,
+  "trans": [
+   "blur_in",
+   "push",
+   "blur_in",
+   "push"
+  ],
+  "music_genres": {
+   "house": 5,
+   "tech-house": 5,
+   "technology": 4,
+   "techno": 3
+  },
+  "exit": 0.16,
+  "enter_delay": 0.3
+ },
+ "ink_amber": {
+  "label": "Ink Amber (near-black warm, one amber accent)",
+  "tier": "studio",
+  "style": "ink",
+  "theme": "dark",
+  "mat": "obsidian",
+  "bg": "#060912",
+  "glow": "rgba(0,0,0,0)",
+  "glow_off": true,
+  "tones": {
+   "white": "#f3f5fb",
+   "red": "#ee6a80",
+   "blue": "#5b8def",
+   "yellow": "#e6b45f",
+   "green": "#52cfa0",
+   "violet": "#9d89f3"
+  },
+  "backdrop": {
+   "kind": "ink",
+   "base": "#060912",
+   "colors": [
+    "yellow",
+    "red"
+   ]
+  },
+  "accent": "yellow",
+  "zones": {
+   "problem": "red",
+   "twist": "yellow",
+   "mechanism": "blue",
+   "data": "blue",
+   "solution": "green",
+   "outro": "violet"
+  },
+  "zone_mix": 0.38,
+  "gl_env": [
+   "yellow",
+   "yellow",
+   "white",
+   "red"
+  ],
+  "gl_exposure": 1.0,
+  "caption": "quiet",
+  "overlay": "none",
+  "grain": 0.16,
+  "drift": 0.018,
+  "punch": 0.5,
+  "snap": 0.04,
+  "shocks": false,
+  "flash_gain": 0,
+  "stamp_rot": -2,
+  "trans": [
+   "blur_in",
+   "push",
+   "blur_in",
+   "push"
+  ],
+  "music_genres": {
+   "house": 5,
+   "tech-house": 5,
+   "technology": 4,
+   "techno": 3
+  },
+  "exit": 0.16,
+  "enter_delay": 0.3
  }
 }

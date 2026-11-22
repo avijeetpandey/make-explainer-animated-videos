@@ -10,6 +10,8 @@ Add an entry to `assets/worlds.json`:
   "caption": "underline|highlight|serif|mono", "overlay": "none|grid|scan", "grain": 0.5, "drift": 0.04, "punch": 1.0,
   "trans": ["whip_h","blur_in","whip_v","push"], "music_genres": {"house": 5, "techno": 3}}
 ```
+Studio-style worlds add: `"tier": "studio|expressive|classic"` (only `studio` worlds are auto-picked), `"style": "ink|glass|flat"`, `"backdrop": {"kind": "ink|aurora|fluted|duotone|studio|cream|deep", "base": "#...", "colors": ["blue","violet"]}`, `"zones": {"problem": "red", ...}` + `"zone_mix"` (how far a scene's `zone` tints the backdrop), `"mat": "obsidian"` (dark glossy 3D), `"gl_env": [tones for the 3D rim lights]`, `"accent"`, `"enter_delay"` / `"exit"` (seconds: nothing new enters until the old content has left), `"snap"`, `"shocks": false`, `"flash_gain": 0`, `"stamp_rot"`, `"caption": "quiet|glow|lime|..."`. See `ink_blue` for a complete calm example. Read `references/DESIGN_PRINCIPLES.md` first.
+
 `tones` keep their meaning (`blue` = primary/active, `red` = failure ...) but not their hue. New caption style or overlay: add a CSS block at the end of `scripts/explainer.css` (`.cap-<name> #cap .k {...}`, `.ov-<name> {...}`). Use it with `"world": "my_world"` or let the rotation pick it.
 
 ## A new hero shape
@@ -20,6 +22,9 @@ Add an entry to `assets/worlds.json`:
 2. Per-frame behaviour: in `render()` inside the DOM loop add an `else if (el === "mytype") {...}` that sets text/styles from `t` (pure function of time!).
 3. Style it in `explainer.css`. Optionally give `fx_plan.py`/`build_explainer.py` a rule for its sound (`plan_cues`) and its facts check.
 Canvas elements (drawn with the 2D context) follow `drawObj` / `drawLink`.
+
+## A new 3D kind (`gl`)
+`scripts/studio.js`: add a branch in the `INST` builder (`else if (k === "mykind") { add(new THREE.Mesh(geometry, parts.m = mat(tone0, style))); }`), then an analytic box for it in `glBox` in `engine.js` (the layout gate relies on it; calibrate against a snapshot). Colours must go through `C3()` (sRGB!).
 
 ## New wireframe kind
 `objEdges(e, f)` in `engine.js`: return a list of `[[x,y,z],[x2,y2,z2]]` edges for `kind: "mykind"`.

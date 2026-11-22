@@ -13,7 +13,7 @@ ts = sorted({round((s["from"] + s["to"]) / 2 + .35, 2) for s in sc})[:40]; bad, 
 for i, t in enumerate(ts):
     f = os.path.join(qa, "_sz", f"f{i:02d}.png"); subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(min(t, tm["total"] - .1)), "-i", vid, "-frames:v", "1", f], check=True)
     raw = subprocess.run(["ffmpeg", "-v", "error", "-i", f, "-vf", "scale=1080:1920,format=gray", "-f", "rawvideo", "-"], capture_output=True).stdout
-    g = np.frombuffer(raw, np.uint8).reshape(1920, 1080); br = g > 110
+    g = np.frombuffer(raw, np.uint8).reshape(1920, 1080); br = (g < 70) if np.median(g) > 140 else (g > 150)        # light (cream) scene: dark ink is the content; dark scenes: only near-white content counts, coloured aurora glows do not
     zones = {"bottom (y>1500)": br[1500:, :], "far-right (x>990)": br[250:1500, 990:], "button strip (x 930-990)": br[250:1500, 930:990]}
     for k, z in zones.items():
         n = int(z.sum())

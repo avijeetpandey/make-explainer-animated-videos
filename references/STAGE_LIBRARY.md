@@ -64,3 +64,44 @@ Caption occupies y 185–400. Hero centre ≈ 800–900. Typical stage: top node
 
 ## Limits (be honest in the checkpoint message)
 Wireframes are edges only (no solid faces); text in 3D scenes is HTML (always crisp); one particle hero at a time; no video/footage; max ≈25 simultaneous elements per scene (canvas redraws every frame; render ≈2× real time on a laptop).
+
+
+# v0.7 studio elements (22 Nov 2026) - multicolour backdrops, 3D, glass, type
+
+Default worlds are now the **studio** worlds: `neon_studio` (aurora), `fluted_chrome` (reeded glass), `sunset_duotone` (navy to orange), `editorial_studio` (spotlight + cream pages). The classic mono worlds remain (`meta.world: "mono_pulse"` etc.). Recommended storyboard style for studio worlds: **`hero: null`** (no particles), one or two large objects per scene, one colour story per scene.
+
+## Scene fields
+| field | meaning |
+|---|---|
+| `zone` | `problem` (red) · `twist` (yellow) · `mechanism` / `data` (blue) · `solution` (green) · `outro` (violet): re-colours the backdrop lights of that scene. Mapping comes from the world's `zones`. |
+| `bg` | override the world backdrop for this scene: `"cream"` or `{"kind": "aurora\|fluted\|duotone\|studio\|cream\|deep", "colors": ["blue","#ff7a2f",...], "base": "#05061a", "sw": 58}`. Alternating one `cream` scene (light theme, text flips dark automatically) between dark scenes gives the editorial rhythm. |
+| `flash`, `flash_at` | tone name + seconds after scene start: the whole frame pulses that colour for ~0.7 s. Use on success / failure beats (green / red), max 4-5 per video. |
+
+## `gl`: real 3D objects (three.js, glossy, studio-lit)
+`{"type":"gl","id":"srv","kind":"server","x":540,"y":820,"tone":"blue","label":"ONE SERVER","at":0.1}`
+| `kind` | extra props |
+|---|---|
+| `orb` | `r` (150), `mat` `chrome` / `glossy` / `glass` / `neon` |
+| `knot`, `torus`, `gem`, `capsule`, `coin` | `r`; `knot`: `p`,`q`; `gem`: `detail`; capsule is vertical (use `grz: 1.5708` for a horizontal "car") |
+| `ring` | thin glowing ring: `r`, `tube` |
+| `slab` | rounded slab: `w3`,`h3`,`d3`, `round`, `screen` (tone of an inset glowing screen: phone / road / RAM stick) |
+| `db` | stacked database discs: `n`, `w3`, `rim` |
+| `server` | rack units with LEDs: `units`, `w3`,`h3`,`d3` |
+| `shield` | shield with a check that draws on: `r` |
+| `ribbon` | tube drawn on along `pts` `[[x,y,z],...]` (px offsets from x,y), `tube` radius, frame `draw` 0-1 (default: draws in) |
+| `cubes` | grid of rounded cubes: `n`,`cols`,`cw`; frame `lit`:[indices] raise and glow in their `tones`[i] (or `tone`), the rest stay dark glass: **object pools, bit arrays, partitions, memory** |
+Frame props (glide between scenes): `x,y,sc,tone,alpha,spin,gry,grx,grz,bob,z,draw,lit,tones,active`. Other: `label` (mono text under it), `ly` (label offset px), `sway` (slab / server / db rock back and forth; spin kinds rotate), `at`.
+3D elements persist across scenes by `id` like every other element. Packets and links can connect `gl` ids.
+
+## DOM additions
+| type / prop | meaning |
+|---|---|
+| `big` + `style` | `chrome` (condensed Anton, steel gradient) · `outline` (stroke-only giant numerals/words, `tone` = stroke colour) · `grad` · `condensed`; `size` px (150-360); lines animate in one by one |
+| `pill` | lime highlighter tag (`tone` for another colour): the "STEP 01" / "THE FIX" kicker |
+| `rows` | status rows: `rows:[{t,tone}]`, frame `st`:["idle\|run\|ok\|fail\|dim", ...] (rows light, glow green / red, dim) |
+| `card` + `chrome:true` | window chrome (traffic lights + mono `title`), glass body; `tiltx`,`tilty` (deg) give a perspective tilt |
+| any element `in` | entrance variant: `rise` (default) · `scale` · `blur` · `left` · `right` · `drop` · `flip`. Rotate them; never five identical entrances in a row. |
+| `bars` + `tone` | gradient bars in the tone |
+
+## Layout notes for studio scenes
+Caption y 185-400, headline (frame 0) y 390-620, object band y 560-1250, labels sit below the object, status chip / counter y 1230-1400, nothing below 1500. Cubes `cw` 110-170 (rows tilt toward the viewer, the grid reads at 4-6 columns). Keep the object centred; let colour and depth carry the scene.

@@ -64,3 +64,31 @@ Measured on 5 fps strips: a "beat" (one sentence) lasts 2.9–6.2 s, median ≈3
 
 ## 6. Not determined
 Exact SFX files, exact font files (Hanken Grotesk / JetBrains Mono / Instrument Serif are the closest OFL matches, chosen by eye), the author's renderer, and the true voice source.
+
+---
+
+# Second batch: 17 more reels, the "polished studio" look (studied 22 Nov 2026)
+
+> Same rule as above: third-party public videos, frames not redistributed (they live in the author's private working copy). Below are measured observations and the design vocabulary we rebuilt **from scratch**; no brand, character, script or wording is copied.
+
+**Why this batch matters.** The first 17 reels are one monochrome template (near-black, white hairlines, one accent). Rendering that look faithfully gave videos that read as "the same type, junior": every video was black-and-white particles and wireframes. This batch is the opposite end: motion designers who light, colour and compose every scene differently. Method: 17 reels downloaded (yt-dlp), 2 fps frames, 24-frame overview sheets, full-resolution detail montages and 5 fps motion strips on the transitions that carry the polish.
+
+## What they do that the first template never did
+| # | Device | How it is built | Where it lives in the skill |
+|---|---|---|---|
+| 1 | **Colour is lighting, not decoration.** Each scene gets its own light: deep-navy aurora (blue / violet / magenta), teal-and-blue light through reeded glass, navy-to-orange duotone with a dot grid, a cream editorial page. | big blurred radial lights drifting on slow Lissajous paths, additive blend, vignette, grain | `studio.js` backdrops `aurora` `fluted` `duotone` `studio` `cream` `deep`, crossfaded between scenes |
+| 2 | **Semantic colour zones.** Problem scenes go red, mechanism blue, the fix green, outro violet; the background itself changes, and a success/failure beat **flashes the whole frame** green or red for ~0.5 s. | scene tag -> tone | scene `zone`, `flash`, `flash_at`; world `zones` |
+| 3 | **Real depth.** Glossy objects with reflections: spheres, knots, rounded slabs, stacked server units, database discs, shield + check, ribbons that draw on. Lit by coloured softboxes, so each object carries rim light in the scene's colours. | WebGL (three.js) with a procedural studio environment | stage type `gl` (13 kinds) |
+| 4 | **Glass UI.** Cards are translucent gradient panels with a bright top edge and a coloured outer glow keyed to the concept; slight 3D tilt; window chrome (traffic-light dots + mono title) for terminals/chats; status rows with check / cross that glow green / red. | CSS gradients, inset highlights, `perspective()` tilt | `card` (`chrome`, `tiltx`), `rows`, world `style: glass` |
+| 5 | **Type system with contrast.** Giant **outline** numerals, **chrome-gradient condensed** titles (Anton), serif-italic accents, lime highlighter pills for kickers, mono micro-labels. Never the same face for everything. | text-stroke, background-clip text gradient, pill chips | `big` `style: outline | chrome | grad | condensed`, `pill`, caption styles `glow` / `lime` |
+| 6 | **Scene-to-scene continuity.** Backgrounds crossfade while the old content blurs out and the new content arrives with a *different* entrance (slide, scale, blur-focus, flip, drop). Light and dark scenes alternate. | per-element entrance variants | `in: rise | scale | blur | left | right | flip | drop`, scene `bg` |
+| 7 | **State shown on the object.** A lit cube is "in use", a dark glass cube is "free"; rows dim, light up, fail; counters roll. The picture explains the mechanism without words. | per-item state read from keyframes, eased | `gl kind: cubes` `lit` / `tones`, `rows` `st` |
+| 8 | **Karaoke captions in a high-contrast style**, key words coloured / glowing / lime-highlighted rather than just underlined. | | caption styles per world |
+
+## Measured / observed numbers
+Scene length 2.5-4.5 s; a new idea or entrance every 1.5-2.5 s; 1-2 large objects per scene, never a diagram of ten thin lines; text and 3D share one colour story per scene; background change at every scene cut (crossfade ~0.5 s); motion blur / refocus on 1 of 4 cuts.
+
+## Honest limits
+This is a **look reconstruction**, not a clone: exact fonts, assets and some of the 3D scenes in the originals were created in other tools. Ours is open source end to end: three.js (MIT) for 3D, Canvas 2D for lights, HTML/CSS for UI, HyperFrames to render. Verified: WebGL renders on the GPU path inside HyperFrames (hardware ANGLE/Metal on the author's Mac) and is deterministic per seek.
+
+> **Correction (22 Nov 2026, after owner review).** The first reconstruction of this batch (v0.7) copied the *devices* (colour, depth, glass, type) and stacked them, and came out loud. What actually makes these reels premium is the discipline around the devices: one accent, one composition grid, every object explaining something, calm motion. See `DESIGN_PRINCIPLES.md`; the default look is now `ink_*`, the devices above are used sparingly.

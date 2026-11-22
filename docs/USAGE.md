@@ -28,6 +28,7 @@ Language: `"language": "hinglish"` in `meta` for Roman-script Hinglish (or any l
 ## 4. Check, look, render
 ```bash
 cd ~/Documents/explainer-videos/my_video
+python3 -I K/scripts/layout_check.py .                                   # MUST print PASS: overlaps, margins, caption zone, cuts, spacing
 npx --yes hyperframes@0.8.209 check                                  # 0 errors required
 npx --yes hyperframes@0.8.209 snapshot --at 1,6,12,20               # look at the frames
 npx --yes hyperframes@0.8.209 preview                                # Studio preview (scrub in the browser)

@@ -13,7 +13,7 @@ build_explainer.py ──► clean_voice.py        voice_clean.wav, assets/voice
                                                                   finalize.sh (mux master.wav, x264) ──► final.mp4
 ```
 ## The one idea: everything is a pure function of time
-`engine.js` exposes `render(t)`. One paused GSAP tween calls it on every seek, so renders are deterministic and scrubbable. Canvas (dust, hero particles, wireframes, links, packets, impact rings, grain) and DOM (captions, chips, cards, counters, headline) are both positioned from `t`; element lifetimes and keyframes are precomputed by `resolve()`; randomness is seeded (no `Math.random`, no wall clock).
+`studio.js` (loaded before the engine) draws the per-scene backdrops on a 2D canvas and, when the storyboard has `gl` elements, renders three.js objects on a WebGL canvas, also as a pure function of `t`; it also owns the light/dark theme flip. `engine.js` exposes `render(t)`. One paused GSAP tween calls it on every seek, so renders are deterministic and scrubbable. Canvas (dust, hero particles, wireframes, links, packets, impact rings, grain) and DOM (captions, chips, cards, counters, headline) are both positioned from `t`; element lifetimes and keyframes are precomputed by `resolve()`; randomness is seeded (no `Math.random`, no wall clock).
 
 ## Data model
 `scenes.json` -> scenes {text, hero, stage[], keep[], shock}; `stage` entries become elements {id, type, wins[[t0,t1]], ats[], frames[{t, x, y, ...props}]}; an element listed again in the next scene persists and its numeric props glide over 0.7 s.
